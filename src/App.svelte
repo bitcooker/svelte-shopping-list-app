@@ -1,30 +1,68 @@
 <script>
-	export let name;
+  // Components
+  import Form from "./form/Form.svelte";
+  import ListItem from "./listItem/ListItem.svelte";
+
+  // Variables
+  export let newItem = "";
+  export let shoppingList = [
+    { name: "Quinoa", bought: true },
+    { name: "Watermelon", bought: false },
+    { name: "Chocolate", bought: false },
+  ];
+
+  // Actions
+  function addToList() {
+    shoppingList = [...shoppingList, { name: newItem, bought: false }];
+    newItem = "";
+  }
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+  <div class="list-container">
+    <h1>Shopping List</h1>
+    <Form bind:value={newItem} {shoppingList} {addToList} {newItem} />
+    <ul class="list">
+      {#each shoppingList as item, index}
+        <ListItem {item} {index} />
+      {/each}
+    </ul>
+  </div>
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+  main {
+    text-align: center;
+    padding: 1rem;
+  }
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
+  h1 {
+    color: #0b700e;
+    text-transform: uppercase;
+    font-size: 2rem;
+    font-weight: 400;
+    margin-top: 0;
+  }
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  .list-container {
+    padding: 1rem;
+    margin: 0 auto;
+    border: #9fde42 solid 5px;
+    border-radius: 1rem;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
+  }
+  @media (min-width: 640px) {
+    h1 {
+      font-size: 4rem;
+    }
+    .list-container {
+      padding: 2rem;
+      max-width: max-content;
+    }
+  }
 </style>
