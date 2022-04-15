@@ -1,7 +1,7 @@
 <script lang="ts">
   // Components
   import ListItem from "./components/listItem/ListItem.svelte";
-  import Form from "./components/form/form.svelte";
+  import Form from "./components/form/Form.svelte";
 
   // Types
   import type ShoppingItem from "./types/ShoppingItem";
