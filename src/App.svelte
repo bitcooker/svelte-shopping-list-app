@@ -1,11 +1,14 @@
-<script>
+<script lang="ts">
   // Components
-  import Form from "./form/Form.svelte";
-  import ListItem from "./listItem/ListItem.svelte";
+  import ListItem from "./components/listItem/ListItem.svelte";
+  import Form from "./components/form/form.svelte";
+
+  // Types
+  import type ShoppingItem from "./types/ShoppingItem";
 
   // Variables
-  export let newItem = "";
-  export let shoppingList = [
+  export let newItem: string;
+  export let shoppingList: ShoppingItem[] = [
     { name: "Quinoa", bought: true },
     { name: "Watermelon", bought: false },
     { name: "Chocolate", bought: false },
@@ -21,10 +24,10 @@
 <main>
   <div class="list-container">
     <h1>Shopping List</h1>
-    <Form bind:value={newItem} {shoppingList} {addToList} {newItem} />
+    <Form bind:value={newItem} {addToList} />
     <ul class="list">
       {#each shoppingList as item, index}
-        <ListItem {item} {index} />
+        <ListItem {item} />
       {/each}
     </ul>
   </div>

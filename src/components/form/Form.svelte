@@ -1,12 +1,12 @@
-<script>
+<script lang="ts">
   // Props
-  export let value;
+  export let value: string;
   export let addToList = () => {};
 </script>
 
 <div class="form">
   <input class="input" bind:value type="text" placeholder="ex. apples" />
-  <button on:click={addToList}>Add</button>
+  <button type="submit" on:click={addToList}>Add</button>
 </div>
 
 <style>
