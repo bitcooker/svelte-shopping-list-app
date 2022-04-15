@@ -18,7 +18,7 @@
   }
 
   .text {
-    margin-left: 1rem;
+    margin-left: 1.1rem;
   }
 
   .checked {
