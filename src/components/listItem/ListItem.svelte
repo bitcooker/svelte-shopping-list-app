@@ -1,13 +1,14 @@
-<script>
+<script lang="ts">
+  // Types
+  import type ShoppingItem from "../../types/ShoppingItem";
+
   // Props
-  export let item;
+  export let item: ShoppingItem;
 </script>
 
 <li class="item">
   <input bind:checked={item.bought} type="checkbox" />
-  <span class="text {item.bought && 'checked'}" class:checked={item.bought} text
-    >{item.name}</span
-  >
+  <span class="text {item.bought && 'checked'}">{item.name}</span>
 </li>
 
 <style>
