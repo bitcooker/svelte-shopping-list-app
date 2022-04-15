@@ -9,27 +9,52 @@
   // Variables
   export let newItem: string;
   export let shoppingList: ShoppingItem[] = [
-    { name: "Quinoa", bought: true },
     { name: "Watermelon", bought: false },
     { name: "Chocolate", bought: false },
+    { name: "Quinoa", bought: true },
   ];
 
   // Actions
   function addToList() {
-    shoppingList = [...shoppingList, { name: newItem, bought: false }];
+    const newList = [{ name: newItem, bought: false }, ...shoppingList];
+    shoppingList = newList;
     newItem = "";
+  }
+
+  function updateList(index: number) {
+    const newList = [...shoppingList];
+    const changedElement = newList.splice(index, 1)[0];
+    changedElement.bought
+      ? newList.splice(newList.length, 0, changedElement)
+      : newList.splice(0, 0, changedElement);
+    shoppingList = newList;
+  }
+
+  function removeItem(index: number) {
+    const newList = [...shoppingList];
+    newList.splice(index, 1);
+    shoppingList = newList;
   }
 </script>
 
 <main>
   <div class="list-container">
     <h1>Shopping List</h1>
-    <Form bind:value={newItem} {addToList} />
-    <ul class="list">
-      {#each shoppingList as item, index}
-        <ListItem {item} />
-      {/each}
-    </ul>
+    <Form bind:value={newItem} on:click={addToList} />
+    {#if shoppingList.length === 0}
+      <p>Your shopping list is empty!</p>
+    {:else}
+      <ul class="list">
+        {#each shoppingList as item, index}
+          <ListItem
+            on:click={() => removeItem(index)}
+            on:change={() => updateList(index)}
+            bind:checked={item.bought}
+            {item}
+          />
+        {/each}
+      </ul>
+    {/if}
   </div>
 </main>
 
