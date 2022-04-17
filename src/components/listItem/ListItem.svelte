@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { fade, fly } from "svelte/transition";
+  import { clickEscape } from "../../helpers/escapeClick/EscapeClick";
+
   // Assets
   import DeleteIcon from "../../icons/deleteIcon/DeleteIcon.svelte";
 
@@ -7,15 +10,32 @@
 
   // Props
   export let checked: boolean;
+  export let value: string;
   export let item: ShoppingItem;
+  export let removeEmptyItem;
+
+  // Helpers
+  function focus(node) {
+    if (!node.id) node.focus();
+  }
 </script>
 
-<li class="item">
+<li class="item" in:fly={{ y: 10, duration: 1000 }} out:fade>
   <div>
     <input bind:checked type="checkbox" on:change />
-    <span class="text {item.bought && 'checked'}">{item.name}</span>
+    <input
+      id={item.name}
+      bind:value
+      type="text"
+      class:checked={item.bought}
+      class:new-item={!item.name}
+      use:focus
+      use:clickEscape={() => {
+        removeEmptyItem();
+      }}
+    />
   </div>
-  <button on:click><DeleteIcon /></button>
+  <button type="button" on:click><DeleteIcon /></button>
 </li>
 
 <style>
@@ -30,12 +50,12 @@
   input {
     margin: 0;
     cursor: pointer;
+    border: none;
   }
 
-  .text {
-    margin-left: 1.1rem;
+  .new-item {
+    border: inset;
   }
-
   .checked {
     text-decoration: line-through;
   }

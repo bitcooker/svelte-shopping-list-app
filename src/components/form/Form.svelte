@@ -4,7 +4,13 @@
 </script>
 
 <div class="form">
-  <input class="input" bind:value type="text" placeholder="eg. apples" />
+  <input
+    on:submit
+    class="input"
+    bind:value
+    type="text"
+    placeholder="eg. apples"
+  />
   <button disabled={!value} on:click>Add</button>
 </div>
 

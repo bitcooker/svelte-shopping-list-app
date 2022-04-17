@@ -1,24 +1,35 @@
 <script lang="ts">
   // Components
   import ListItem from "./components/listItem/ListItem.svelte";
-  import Form from "./components/form/Form.svelte";
+
+  // Helpers
+  import { clickOutside } from "./helpers/outsideClick/OutsideClick.js";
+
+  // Assets
+  import PlusIcon from "./icons/plusIcon/PlusIcon.svelte";
 
   // Types
   import type ShoppingItem from "./types/ShoppingItem";
 
   // Variables
-  export let newItem: string;
+  export let newItem: string = "";
   export let shoppingList: ShoppingItem[] = [
     { name: "Watermelon", bought: false },
     { name: "Chocolate", bought: false },
-    { name: "Quinoa", bought: true },
+    { name: "Quinoa", bought: false },
   ];
-
   // Actions
   function addToList() {
-    const newList = [{ name: newItem, bought: false }, ...shoppingList];
-    shoppingList = newList;
-    newItem = "";
+    shoppingList = shoppingList.concat({ name: newItem, bought: false });
+  }
+
+  function handleSubmit() {
+    const toBuyItems = shoppingList
+      .filter((item) => !item.bought)
+      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    const boughtItems = shoppingList.filter((item) => item.bought);
+    shoppingList = [...toBuyItems, ...boughtItems];
+    addToList();
   }
 
   function updateList(index: number) {
@@ -35,26 +46,46 @@
     newList.splice(index, 1);
     shoppingList = newList;
   }
+
+  function removeEmptyItem() {
+    const emptyItem = shoppingList.findIndex((item) => !item.name);
+    if (emptyItem !== -1) {
+      removeItem(emptyItem);
+    }
+  }
 </script>
 
 <main>
   <div class="list-container">
     <h1>Shopping List</h1>
-    <Form bind:value={newItem} on:click={addToList} />
     {#if shoppingList.length === 0}
       <p>Your shopping list is empty!</p>
     {:else}
       <ul class="list">
         {#each shoppingList as item, index}
-          <ListItem
-            on:click={() => removeItem(index)}
-            on:change={() => updateList(index)}
-            bind:checked={item.bought}
-            {item}
-          />
+          <form on:submit|preventDefault={handleSubmit}>
+            <ListItem
+              {removeEmptyItem}
+              bind:value={item.name}
+              on:change={() => updateList(index)}
+              bind:checked={item.bought}
+              on:click={() => removeItem(index)}
+              {item}
+            />
+          </form>
         {/each}
       </ul>
     {/if}
+    <button
+      use:clickOutside={() => {
+        removeEmptyItem();
+      }}
+      type="button"
+      on:click={addToList}
+      class="add-button"
+      disabled={!!shoppingList.find((item) => !item.name)}
+      ><span class="text-button">Add new item</span> <PlusIcon /></button
+    >
   </div>
 </main>
 
@@ -77,6 +108,8 @@
     margin: 0 auto;
     border: #9fde42 solid 5px;
     border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
   }
 
   .list {
@@ -84,6 +117,43 @@
     flex-direction: column;
     padding-left: 1rem;
   }
+
+  .add-button {
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    background: transparent;
+    fill: #0b700e;
+    border: none;
+    padding: 5px 10px;
+    width: fit-content;
+    align-self: center;
+    cursor: pointer;
+  }
+
+  .add-button:hover {
+    fill: #9fde42;
+    color: #9fde42;
+  }
+
+  .add-button:active {
+    background-color: transparent;
+    border: none;
+    transform: scale(0.88);
+  }
+
+  .add-button:disabled,
+  .add-button:disabled:hover {
+    color: rgb(181, 169, 169);
+    cursor: default;
+    fill: rgb(181, 169, 169);
+  }
+
+  .text-button {
+    margin-right: 10px;
+  }
+
   @media (min-width: 640px) {
     h1 {
       font-size: 4rem;
