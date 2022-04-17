@@ -23,13 +23,20 @@
     shoppingList = shoppingList.concat({ name: newItem, bought: false });
   }
 
-  function handleSubmit() {
-    const toBuyItems = shoppingList
-      .filter((item) => !item.bought)
-      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-    const boughtItems = shoppingList.filter((item) => item.bought);
-    shoppingList = [...toBuyItems, ...boughtItems];
-    addToList();
+  function handleSubmit(event) {
+    const emptyItem = !!shoppingList.findIndex((item) => !item.name);
+    if (emptyItem) {
+      event.preventDefault();
+    } else {
+      const toBuyItems = shoppingList
+        .filter((item) => !item.bought)
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        );
+      const boughtItems = shoppingList.filter((item) => item.bought);
+      shoppingList = [...toBuyItems, ...boughtItems];
+      addToList();
+    }
   }
 
   function updateList(index: number) {

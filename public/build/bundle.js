@@ -1344,7 +1344,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (52:4) {:else}
+    // (58:4) {:else}
     function create_else_block(ctx) {
     	let ul;
     	let current;
@@ -1369,7 +1369,7 @@ var app = (function () {
     			}
 
     			attr_dev(ul, "class", "list svelte-tp9oz0");
-    			add_location(ul, file, 52, 6, 1622);
+    			add_location(ul, file, 58, 6, 1797);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, ul, anchor);
@@ -1437,14 +1437,14 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(52:4) {:else}",
+    		source: "(58:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (50:4) {#if shoppingList.length === 0}
+    // (56:4) {#if shoppingList.length === 0}
     function create_if_block(ctx) {
     	let p;
 
@@ -1452,7 +1452,7 @@ var app = (function () {
     		c: function create() {
     			p = element("p");
     			p.textContent = "Your shopping list is empty!";
-    			add_location(p, file, 50, 6, 1568);
+    			add_location(p, file, 56, 6, 1743);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -1469,14 +1469,14 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(50:4) {#if shoppingList.length === 0}",
+    		source: "(56:4) {#if shoppingList.length === 0}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (54:8) {#each shoppingList as item, index}
+    // (60:8) {#each shoppingList as item, index}
     function create_each_block(ctx) {
     	let form;
     	let listitem;
@@ -1527,7 +1527,7 @@ var app = (function () {
     			form = element("form");
     			create_component(listitem.$$.fragment);
     			t = space();
-    			add_location(form, file, 54, 10, 1694);
+    			add_location(form, file, 60, 10, 1869);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, form, anchor);
@@ -1580,7 +1580,7 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(54:8) {#each shoppingList as item, index}",
+    		source: "(60:8) {#each shoppingList as item, index}",
     		ctx
     	});
 
@@ -1630,17 +1630,17 @@ var app = (function () {
     			t4 = space();
     			create_component(plusicon.$$.fragment);
     			attr_dev(h1, "class", "svelte-tp9oz0");
-    			add_location(h1, file, 48, 4, 1503);
+    			add_location(h1, file, 54, 4, 1678);
     			attr_dev(span, "class", "text-button svelte-tp9oz0");
-    			add_location(span, file, 75, 7, 2282);
+    			add_location(span, file, 81, 7, 2457);
     			attr_dev(button, "type", "button");
     			attr_dev(button, "class", "add-button svelte-tp9oz0");
     			button.disabled = button_disabled_value = !!/*shoppingList*/ ctx[0].find(func);
-    			add_location(button, file, 67, 4, 2068);
+    			add_location(button, file, 73, 4, 2243);
     			attr_dev(div, "class", "list-container svelte-tp9oz0");
-    			add_location(div, file, 47, 2, 1470);
+    			add_location(div, file, 53, 2, 1645);
     			attr_dev(main, "class", "svelte-tp9oz0");
-    			add_location(main, file, 46, 0, 1461);
+    			add_location(main, file, 52, 0, 1636);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -1747,11 +1747,17 @@ var app = (function () {
     		$$invalidate(0, shoppingList = shoppingList.concat({ name: newItem, bought: false }));
     	}
 
-    	function handleSubmit() {
-    		const toBuyItems = shoppingList.filter(item => !item.bought).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-    		const boughtItems = shoppingList.filter(item => item.bought);
-    		$$invalidate(0, shoppingList = [...toBuyItems, ...boughtItems]);
-    		addToList();
+    	function handleSubmit(event) {
+    		const emptyItem = !!shoppingList.findIndex(item => !item.name);
+
+    		if (emptyItem) {
+    			event.preventDefault();
+    		} else {
+    			const toBuyItems = shoppingList.filter(item => !item.bought).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    			const boughtItems = shoppingList.filter(item => item.bought);
+    			$$invalidate(0, shoppingList = [...toBuyItems, ...boughtItems]);
+    			addToList();
+    		}
     	}
 
     	function updateList(index) {
