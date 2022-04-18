@@ -5,11 +5,6 @@ var app = (function () {
 
     function noop() { }
     const identity = x => x;
-    function add_location(element, file, line, column, char) {
-        element.__svelte_meta = {
-            loc: { file, line, column, char }
-        };
-    }
     function run(fn) {
         return fn();
     }
@@ -623,81 +618,6 @@ var app = (function () {
         }
     }
 
-    function dispatch_dev(type, detail) {
-        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.47.0' }, detail), true));
-    }
-    function append_dev(target, node) {
-        dispatch_dev('SvelteDOMInsert', { target, node });
-        append(target, node);
-    }
-    function insert_dev(target, node, anchor) {
-        dispatch_dev('SvelteDOMInsert', { target, node, anchor });
-        insert(target, node, anchor);
-    }
-    function detach_dev(node) {
-        dispatch_dev('SvelteDOMRemove', { node });
-        detach(node);
-    }
-    function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
-        const modifiers = options === true ? ['capture'] : options ? Array.from(Object.keys(options)) : [];
-        if (has_prevent_default)
-            modifiers.push('preventDefault');
-        if (has_stop_propagation)
-            modifiers.push('stopPropagation');
-        dispatch_dev('SvelteDOMAddEventListener', { node, event, handler, modifiers });
-        const dispose = listen(node, event, handler, options);
-        return () => {
-            dispatch_dev('SvelteDOMRemoveEventListener', { node, event, handler, modifiers });
-            dispose();
-        };
-    }
-    function attr_dev(node, attribute, value) {
-        attr(node, attribute, value);
-        if (value == null)
-            dispatch_dev('SvelteDOMRemoveAttribute', { node, attribute });
-        else
-            dispatch_dev('SvelteDOMSetAttribute', { node, attribute, value });
-    }
-    function prop_dev(node, property, value) {
-        node[property] = value;
-        dispatch_dev('SvelteDOMSetProperty', { node, property, value });
-    }
-    function validate_each_argument(arg) {
-        if (typeof arg !== 'string' && !(arg && typeof arg === 'object' && 'length' in arg)) {
-            let msg = '{#each} only iterates over array-like objects.';
-            if (typeof Symbol === 'function' && arg && Symbol.iterator in arg) {
-                msg += ' You can use a spread to convert this iterable into an array.';
-            }
-            throw new Error(msg);
-        }
-    }
-    function validate_slots(name, slot, keys) {
-        for (const slot_key of Object.keys(slot)) {
-            if (!~keys.indexOf(slot_key)) {
-                console.warn(`<${name}> received an unexpected slot "${slot_key}".`);
-            }
-        }
-    }
-    /**
-     * Base class for Svelte components with some minor dev-enhancements. Used when dev=true.
-     */
-    class SvelteComponentDev extends SvelteComponent {
-        constructor(options) {
-            if (!options || (!options.target && !options.$$inline)) {
-                throw new Error("'target' is a required option");
-            }
-            super();
-        }
-        $destroy() {
-            super.$destroy();
-            this.$destroy = () => {
-                console.warn('Component was already destroyed'); // eslint-disable-line no-console
-            };
-        }
-        $capture_state() { }
-        $inject_state() { }
-    }
-
     function cubicOut(t) {
         const f = t - 1.0;
         return f * f * f + 1.0;
@@ -726,6 +646,31 @@ var app = (function () {
 			opacity: ${target_opacity - (od * u)}`
         };
     }
+    function slide(node, { delay = 0, duration = 400, easing = cubicOut } = {}) {
+        const style = getComputedStyle(node);
+        const opacity = +style.opacity;
+        const height = parseFloat(style.height);
+        const padding_top = parseFloat(style.paddingTop);
+        const padding_bottom = parseFloat(style.paddingBottom);
+        const margin_top = parseFloat(style.marginTop);
+        const margin_bottom = parseFloat(style.marginBottom);
+        const border_top_width = parseFloat(style.borderTopWidth);
+        const border_bottom_width = parseFloat(style.borderBottomWidth);
+        return {
+            delay,
+            duration,
+            easing,
+            css: t => 'overflow: hidden;' +
+                `opacity: ${Math.min(t * 20, 1) * opacity};` +
+                `height: ${t * height}px;` +
+                `padding-top: ${t * padding_top}px;` +
+                `padding-bottom: ${t * padding_bottom}px;` +
+                `margin-top: ${t * margin_top}px;` +
+                `margin-bottom: ${t * margin_bottom}px;` +
+                `border-top-width: ${t * border_top_width}px;` +
+                `border-bottom-width: ${t * border_bottom_width}px;`
+        };
+    }
 
     function clickEscape(node, callBackFunction) {
         const handleKey = (event) => {
@@ -746,78 +691,54 @@ var app = (function () {
 
     /* src/icons/deleteIcon/DeleteIcon.svelte generated by Svelte v3.47.0 */
 
-    const file$3 = "src/icons/deleteIcon/DeleteIcon.svelte";
-
     function create_fragment$3(ctx) {
     	let svg;
     	let path;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			svg = svg_element("svg");
     			path = svg_element("path");
-    			attr_dev(path, "d", "M341,128V99c0-19.1-14.5-35-34.5-35H205.4C185.5,64,171,79.9,171,99v29H80v32h9.2c0,0,5.4,0.6,8.2,3.4c2.8,2.8,3.9,9,3.9,9  l19,241.7c1.5,29.4,1.5,33.9,36,33.9h199.4c34.5,0,34.5-4.4,36-33.8l19-241.6c0,0,1.1-6.3,3.9-9.1c2.8-2.8,8.2-3.4,8.2-3.4h9.2v-32  h-91V128z M192,99c0-9.6,7.8-15,17.7-15h91.7c9.9,0,18.6,5.5,18.6,15v29H192V99z M183.5,384l-10.3-192h20.3L204,384H183.5z   M267.1,384h-22V192h22V384z M328.7,384h-20.4l10.5-192h20.3L328.7,384z");
-    			attr_dev(path, "fill", /*fill*/ ctx[0]);
-    			add_location(path, file$3, 61, 2, 1683);
-    			attr_dev(svg, "height", /*height*/ ctx[2]);
-    			attr_dev(svg, "width", /*width*/ ctx[1]);
-    			attr_dev(svg, "id", "Layer_1");
-    			attr_dev(svg, "version", "1.1");
-    			attr_dev(svg, "viewBox", "0 0 512 512");
-    			attr_dev(svg, "xml:space", "preserve");
-    			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
-    			attr_dev(svg, "xmlns:xlink", "http://www.w3.org/1999/xlink");
-    			add_location(svg, file$3, 51, 0, 1493);
+    			attr(path, "d", "M341,128V99c0-19.1-14.5-35-34.5-35H205.4C185.5,64,171,79.9,171,99v29H80v32h9.2c0,0,5.4,0.6,8.2,3.4c2.8,2.8,3.9,9,3.9,9  l19,241.7c1.5,29.4,1.5,33.9,36,33.9h199.4c34.5,0,34.5-4.4,36-33.8l19-241.6c0,0,1.1-6.3,3.9-9.1c2.8-2.8,8.2-3.4,8.2-3.4h9.2v-32  h-91V128z M192,99c0-9.6,7.8-15,17.7-15h91.7c9.9,0,18.6,5.5,18.6,15v29H192V99z M183.5,384l-10.3-192h20.3L204,384H183.5z   M267.1,384h-22V192h22V384z M328.7,384h-20.4l10.5-192h20.3L328.7,384z");
+    			attr(path, "fill", /*fill*/ ctx[0]);
+    			attr(svg, "height", /*height*/ ctx[2]);
+    			attr(svg, "width", /*width*/ ctx[1]);
+    			attr(svg, "id", "Layer_1");
+    			attr(svg, "version", "1.1");
+    			attr(svg, "viewBox", "0 0 512 512");
+    			attr(svg, "xml:space", "preserve");
+    			attr(svg, "xmlns", "http://www.w3.org/2000/svg");
+    			attr(svg, "xmlns:xlink", "http://www.w3.org/1999/xlink");
     		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		m(target, anchor) {
+    			insert(target, svg, anchor);
+    			append(svg, path);
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, svg, anchor);
-    			append_dev(svg, path);
-    		},
-    		p: function update(ctx, [dirty]) {
+    		p(ctx, [dirty]) {
     			if (dirty & /*fill*/ 1) {
-    				attr_dev(path, "fill", /*fill*/ ctx[0]);
+    				attr(path, "fill", /*fill*/ ctx[0]);
     			}
 
     			if (dirty & /*height*/ 4) {
-    				attr_dev(svg, "height", /*height*/ ctx[2]);
+    				attr(svg, "height", /*height*/ ctx[2]);
     			}
 
     			if (dirty & /*width*/ 2) {
-    				attr_dev(svg, "width", /*width*/ ctx[1]);
+    				attr(svg, "width", /*width*/ ctx[1]);
     			}
     		},
     		i: noop,
     		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(svg);
+    		d(detaching) {
+    			if (detaching) detach(svg);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment$3.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function instance$3($$self, $$props, $$invalidate) {
-    	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots('DeleteIcon', slots, []);
     	let { fill = "ddddd" } = $$props;
     	let { width = "30px" } = $$props;
     	let { height = "30px" } = $$props;
-    	const writable_props = ['fill', 'width', 'height'];
-
-    	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<DeleteIcon> was created with unknown prop '${key}'`);
-    	});
 
     	$$self.$$set = $$props => {
     		if ('fill' in $$props) $$invalidate(0, fill = $$props.fill);
@@ -825,62 +746,17 @@ var app = (function () {
     		if ('height' in $$props) $$invalidate(2, height = $$props.height);
     	};
 
-    	$$self.$capture_state = () => ({ fill, width, height });
-
-    	$$self.$inject_state = $$props => {
-    		if ('fill' in $$props) $$invalidate(0, fill = $$props.fill);
-    		if ('width' in $$props) $$invalidate(1, width = $$props.width);
-    		if ('height' in $$props) $$invalidate(2, height = $$props.height);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
-
     	return [fill, width, height];
     }
 
-    class DeleteIcon extends SvelteComponentDev {
+    class DeleteIcon extends SvelteComponent {
     	constructor(options) {
-    		super(options);
+    		super();
     		init(this, options, instance$3, create_fragment$3, safe_not_equal, { fill: 0, width: 1, height: 2 });
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "DeleteIcon",
-    			options,
-    			id: create_fragment$3.name
-    		});
-    	}
-
-    	get fill() {
-    		throw new Error("<DeleteIcon>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set fill(value) {
-    		throw new Error("<DeleteIcon>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get width() {
-    		throw new Error("<DeleteIcon>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set width(value) {
-    		throw new Error("<DeleteIcon>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get height() {
-    		throw new Error("<DeleteIcon>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set height(value) {
-    		throw new Error("<DeleteIcon>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
 
     /* src/components/listItem/ListItem.svelte generated by Svelte v3.47.0 */
-
-    const file$2 = "src/components/listItem/ListItem.svelte";
 
     function create_fragment$2(ctx) {
     	let li;
@@ -898,10 +774,10 @@ var app = (function () {
     	let current;
     	let mounted;
     	let dispose;
-    	deleteicon = new DeleteIcon({ $$inline: true });
+    	deleteicon = new DeleteIcon({});
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			li = element("li");
     			div = element("div");
     			input0 = element("input");
@@ -910,59 +786,51 @@ var app = (function () {
     			t1 = space();
     			button = element("button");
     			create_component(deleteicon.$$.fragment);
-    			attr_dev(input0, "type", "checkbox");
-    			attr_dev(input0, "class", "svelte-13tql2o");
-    			add_location(input0, file$2, 18, 4, 464);
-    			attr_dev(input1, "id", input1_id_value = /*item*/ ctx[2].name);
-    			attr_dev(input1, "type", "text");
-    			attr_dev(input1, "class", "svelte-13tql2o");
-    			toggle_class(input1, "checked", /*item*/ ctx[2].bought);
+    			attr(input0, "type", "checkbox");
+    			attr(input0, "class", "cursor-pointer");
+    			attr(input1, "class", "p-1.5 cursor-pointer border-none svelte-8iqnr1");
+    			attr(input1, "id", input1_id_value = /*item*/ ctx[2].name);
+    			attr(input1, "type", "text");
+    			toggle_class(input1, "line-through", /*item*/ ctx[2].bought);
     			toggle_class(input1, "new-item", !/*item*/ ctx[2].name);
-    			add_location(input1, file$2, 19, 4, 517);
-    			attr_dev(div, "class", "svelte-13tql2o");
-    			add_location(div, file$2, 17, 2, 454);
-    			attr_dev(button, "type", "button");
-    			attr_dev(button, "class", "svelte-13tql2o");
-    			add_location(button, file$2, 31, 2, 749);
-    			attr_dev(li, "class", "item svelte-13tql2o");
-    			add_location(li, file$2, 16, 0, 390);
+    			attr(div, "class", "flex items-center");
+    			attr(button, "class", "border-none cursor:pointer bg-transparent fill-grey hover:fill-black svelte-8iqnr1");
+    			attr(button, "type", "button");
+    			attr(li, "class", "list-none flex justify-between items-center pb-4");
     		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, li, anchor);
-    			append_dev(li, div);
-    			append_dev(div, input0);
+    		m(target, anchor) {
+    			insert(target, li, anchor);
+    			append(li, div);
+    			append(div, input0);
     			input0.checked = /*checked*/ ctx[0];
-    			append_dev(div, t0);
-    			append_dev(div, input1);
+    			append(div, t0);
+    			append(div, input1);
     			set_input_value(input1, /*value*/ ctx[1]);
-    			append_dev(li, t1);
-    			append_dev(li, button);
+    			append(li, t1);
+    			append(li, button);
     			mount_component(deleteicon, button, null);
     			current = true;
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "change", /*input0_change_handler*/ ctx[6]),
-    					listen_dev(input0, "change", /*change_handler*/ ctx[5], false, false, false),
-    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[7]),
+    					listen(input0, "change", /*input0_change_handler*/ ctx[6]),
+    					listen(input0, "change", /*change_handler*/ ctx[5]),
+    					listen(input1, "input", /*input1_input_handler*/ ctx[7]),
     					action_destroyer(focus.call(null, input1)),
     					action_destroyer(clickEscape_action = clickEscape.call(null, input1, /*clickEscape_function*/ ctx[8])),
-    					listen_dev(button, "click", /*click_handler*/ ctx[4], false, false, false)
+    					listen(button, "click", /*click_handler*/ ctx[4])
     				];
 
     				mounted = true;
     			}
     		},
-    		p: function update(ctx, [dirty]) {
+    		p(ctx, [dirty]) {
     			if (dirty & /*checked*/ 1) {
     				input0.checked = /*checked*/ ctx[0];
     			}
 
     			if (!current || dirty & /*item*/ 4 && input1_id_value !== (input1_id_value = /*item*/ ctx[2].name)) {
-    				attr_dev(input1, "id", input1_id_value);
+    				attr(input1, "id", input1_id_value);
     			}
 
     			if (dirty & /*value*/ 2 && input1.value !== /*value*/ ctx[1]) {
@@ -972,14 +840,14 @@ var app = (function () {
     			if (clickEscape_action && is_function(clickEscape_action.update) && dirty & /*removeEmptyItem*/ 8) clickEscape_action.update.call(null, /*clickEscape_function*/ ctx[8]);
 
     			if (dirty & /*item*/ 4) {
-    				toggle_class(input1, "checked", /*item*/ ctx[2].bought);
+    				toggle_class(input1, "line-through", /*item*/ ctx[2].bought);
     			}
 
     			if (dirty & /*item*/ 4) {
     				toggle_class(input1, "new-item", !/*item*/ ctx[2].name);
     			}
     		},
-    		i: function intro(local) {
+    		i(local) {
     			if (current) return;
     			transition_in(deleteicon.$$.fragment, local);
 
@@ -991,30 +859,20 @@ var app = (function () {
 
     			current = true;
     		},
-    		o: function outro(local) {
+    		o(local) {
     			transition_out(deleteicon.$$.fragment, local);
     			if (li_intro) li_intro.invalidate();
-    			li_outro = create_out_transition(li, fade, {});
+    			li_outro = create_out_transition(li, slide, { duration: 300 });
     			current = false;
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(li);
+    		d(detaching) {
+    			if (detaching) detach(li);
     			destroy_component(deleteicon);
     			if (detaching && li_outro) li_outro.end();
     			mounted = false;
     			run_all(dispose);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment$2.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function focus(node) {
@@ -1022,17 +880,10 @@ var app = (function () {
     }
 
     function instance$2($$self, $$props, $$invalidate) {
-    	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots('ListItem', slots, []);
     	let { checked } = $$props;
     	let { value } = $$props;
     	let { item } = $$props;
     	let { removeEmptyItem } = $$props;
-    	const writable_props = ['checked', 'value', 'item', 'removeEmptyItem'];
-
-    	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<ListItem> was created with unknown prop '${key}'`);
-    	});
 
     	function click_handler(event) {
     		bubble.call(this, $$self, event);
@@ -1063,29 +914,6 @@ var app = (function () {
     		if ('removeEmptyItem' in $$props) $$invalidate(3, removeEmptyItem = $$props.removeEmptyItem);
     	};
 
-    	$$self.$capture_state = () => ({
-    		fade,
-    		fly,
-    		clickEscape,
-    		DeleteIcon,
-    		checked,
-    		value,
-    		item,
-    		removeEmptyItem,
-    		focus
-    	});
-
-    	$$self.$inject_state = $$props => {
-    		if ('checked' in $$props) $$invalidate(0, checked = $$props.checked);
-    		if ('value' in $$props) $$invalidate(1, value = $$props.value);
-    		if ('item' in $$props) $$invalidate(2, item = $$props.item);
-    		if ('removeEmptyItem' in $$props) $$invalidate(3, removeEmptyItem = $$props.removeEmptyItem);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
-
     	return [
     		checked,
     		value,
@@ -1099,9 +927,9 @@ var app = (function () {
     	];
     }
 
-    class ListItem extends SvelteComponentDev {
+    class ListItem extends SvelteComponent {
     	constructor(options) {
-    		super(options);
+    		super();
 
     		init(this, options, instance$2, create_fragment$2, safe_not_equal, {
     			checked: 0,
@@ -1109,64 +937,6 @@ var app = (function () {
     			item: 2,
     			removeEmptyItem: 3
     		});
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "ListItem",
-    			options,
-    			id: create_fragment$2.name
-    		});
-
-    		const { ctx } = this.$$;
-    		const props = options.props || {};
-
-    		if (/*checked*/ ctx[0] === undefined && !('checked' in props)) {
-    			console.warn("<ListItem> was created without expected prop 'checked'");
-    		}
-
-    		if (/*value*/ ctx[1] === undefined && !('value' in props)) {
-    			console.warn("<ListItem> was created without expected prop 'value'");
-    		}
-
-    		if (/*item*/ ctx[2] === undefined && !('item' in props)) {
-    			console.warn("<ListItem> was created without expected prop 'item'");
-    		}
-
-    		if (/*removeEmptyItem*/ ctx[3] === undefined && !('removeEmptyItem' in props)) {
-    			console.warn("<ListItem> was created without expected prop 'removeEmptyItem'");
-    		}
-    	}
-
-    	get checked() {
-    		throw new Error("<ListItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set checked(value) {
-    		throw new Error("<ListItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get value() {
-    		throw new Error("<ListItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set value(value) {
-    		throw new Error("<ListItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get item() {
-    		throw new Error("<ListItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set item(value) {
-    		throw new Error("<ListItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get removeEmptyItem() {
-    		throw new Error("<ListItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set removeEmptyItem(value) {
-    		throw new Error("<ListItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
 
@@ -1189,89 +959,63 @@ var app = (function () {
 
     /* src/icons/plusIcon/PlusIcon.svelte generated by Svelte v3.47.0 */
 
-    const file$1 = "src/icons/plusIcon/PlusIcon.svelte";
-
     function create_fragment$1(ctx) {
     	let svg;
     	let g0;
     	let g1;
     	let path;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			svg = svg_element("svg");
     			g0 = svg_element("g");
     			g1 = svg_element("g");
     			path = svg_element("path");
-    			attr_dev(g0, "id", "info");
-    			add_location(g0, file$1, 15, 3, 326);
-    			attr_dev(path, "fill", /*fill*/ ctx[0]);
-    			attr_dev(path, "d", "M12,1C5.9,1,1,5.9,1,12s4.9,11,11,11s11-4.9,11-11S18.1,1,12,1z M17,14h-3v3c0,1.1-0.9,2-2,2s-2-0.9-2-2v-3H7   c-1.1,0-2-0.9-2-2c0-1.1,0.9-2,2-2h3V7c0-1.1,0.9-2,2-2s2,0.9,2,2v3h3c1.1,0,2,0.9,2,2C19,13.1,18.1,14,17,14z");
-    			attr_dev(path, "id", "add");
-    			add_location(path, file$1, 16, 5, 360);
-    			attr_dev(g1, "id", "icons");
-    			add_location(g1, file$1, 15, 18, 341);
-    			attr_dev(svg, "width", /*width*/ ctx[1]);
-    			attr_dev(svg, "height", /*height*/ ctx[2]);
+    			attr(g0, "id", "info");
+    			attr(path, "fill", /*fill*/ ctx[0]);
+    			attr(path, "d", "M12,1C5.9,1,1,5.9,1,12s4.9,11,11,11s11-4.9,11-11S18.1,1,12,1z M17,14h-3v3c0,1.1-0.9,2-2,2s-2-0.9-2-2v-3H7   c-1.1,0-2-0.9-2-2c0-1.1,0.9-2,2-2h3V7c0-1.1,0.9-2,2-2s2,0.9,2,2v3h3c1.1,0,2,0.9,2,2C19,13.1,18.1,14,17,14z");
+    			attr(path, "id", "add");
+    			attr(g1, "id", "icons");
+    			attr(svg, "width", /*width*/ ctx[1]);
+    			attr(svg, "height", /*height*/ ctx[2]);
     			set_style(svg, "enable-background", "new 0 0 24 24");
-    			attr_dev(svg, "version", "1.1");
-    			attr_dev(svg, "viewBox", "0 0 24 24");
-    			attr_dev(svg, "xml:space", "preserve");
-    			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
-    			attr_dev(svg, "xmlns:xlink", "http://www.w3.org/1999/xlink");
-    			add_location(svg, file$1, 6, 0, 111);
+    			attr(svg, "version", "1.1");
+    			attr(svg, "viewBox", "0 0 24 24");
+    			attr(svg, "xml:space", "preserve");
+    			attr(svg, "xmlns", "http://www.w3.org/2000/svg");
+    			attr(svg, "xmlns:xlink", "http://www.w3.org/1999/xlink");
     		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		m(target, anchor) {
+    			insert(target, svg, anchor);
+    			append(svg, g0);
+    			append(svg, g1);
+    			append(g1, path);
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, svg, anchor);
-    			append_dev(svg, g0);
-    			append_dev(svg, g1);
-    			append_dev(g1, path);
-    		},
-    		p: function update(ctx, [dirty]) {
+    		p(ctx, [dirty]) {
     			if (dirty & /*fill*/ 1) {
-    				attr_dev(path, "fill", /*fill*/ ctx[0]);
+    				attr(path, "fill", /*fill*/ ctx[0]);
     			}
 
     			if (dirty & /*width*/ 2) {
-    				attr_dev(svg, "width", /*width*/ ctx[1]);
+    				attr(svg, "width", /*width*/ ctx[1]);
     			}
 
     			if (dirty & /*height*/ 4) {
-    				attr_dev(svg, "height", /*height*/ ctx[2]);
+    				attr(svg, "height", /*height*/ ctx[2]);
     			}
     		},
     		i: noop,
     		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(svg);
+    		d(detaching) {
+    			if (detaching) detach(svg);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment$1.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function instance$1($$self, $$props, $$invalidate) {
-    	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots('PlusIcon', slots, []);
     	let { fill = "#0b700e;" } = $$props;
     	let { width = "40px" } = $$props;
     	let { height = "40px" } = $$props;
-    	const writable_props = ['fill', 'width', 'height'];
-
-    	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<PlusIcon> was created with unknown prop '${key}'`);
-    	});
 
     	$$self.$$set = $$props => {
     		if ('fill' in $$props) $$invalidate(0, fill = $$props.fill);
@@ -1279,77 +1023,31 @@ var app = (function () {
     		if ('height' in $$props) $$invalidate(2, height = $$props.height);
     	};
 
-    	$$self.$capture_state = () => ({ fill, width, height });
-
-    	$$self.$inject_state = $$props => {
-    		if ('fill' in $$props) $$invalidate(0, fill = $$props.fill);
-    		if ('width' in $$props) $$invalidate(1, width = $$props.width);
-    		if ('height' in $$props) $$invalidate(2, height = $$props.height);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
-
     	return [fill, width, height];
     }
 
-    class PlusIcon extends SvelteComponentDev {
+    class PlusIcon extends SvelteComponent {
     	constructor(options) {
-    		super(options);
+    		super();
     		init(this, options, instance$1, create_fragment$1, safe_not_equal, { fill: 0, width: 1, height: 2 });
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "PlusIcon",
-    			options,
-    			id: create_fragment$1.name
-    		});
-    	}
-
-    	get fill() {
-    		throw new Error("<PlusIcon>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set fill(value) {
-    		throw new Error("<PlusIcon>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get width() {
-    		throw new Error("<PlusIcon>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set width(value) {
-    		throw new Error("<PlusIcon>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get height() {
-    		throw new Error("<PlusIcon>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set height(value) {
-    		throw new Error("<PlusIcon>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
 
     /* src/App.svelte generated by Svelte v3.47.0 */
 
-    const file = "src/App.svelte";
-
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[12] = list[i];
-    	child_ctx[13] = list;
-    	child_ctx[14] = i;
+    	child_ctx[13] = list[i];
+    	child_ctx[14] = list;
+    	child_ctx[15] = i;
     	return child_ctx;
     }
 
-    // (58:4) {:else}
+    // (81:4) {:else}
     function create_else_block(ctx) {
     	let ul;
     	let current;
     	let each_value = /*shoppingList*/ ctx[0];
-    	validate_each_argument(each_value);
     	let each_blocks = [];
 
     	for (let i = 0; i < each_value.length; i += 1) {
@@ -1360,19 +1058,18 @@ var app = (function () {
     		each_blocks[i] = null;
     	});
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			ul = element("ul");
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			attr_dev(ul, "class", "list svelte-tp9oz0");
-    			add_location(ul, file, 58, 6, 1797);
+    			attr(ul, "class", "pl-2 flex flex-col mt-5");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, ul, anchor);
+    		m(target, anchor) {
+    			insert(target, ul, anchor);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(ul, null);
@@ -1380,10 +1077,9 @@ var app = (function () {
 
     			current = true;
     		},
-    		p: function update(ctx, dirty) {
+    		p(ctx, dirty) {
     			if (dirty & /*handleSubmit, removeEmptyItem, shoppingList, updateList, removeItem*/ 61) {
     				each_value = /*shoppingList*/ ctx[0];
-    				validate_each_argument(each_value);
     				let i;
 
     				for (i = 0; i < each_value.length; i += 1) {
@@ -1409,7 +1105,7 @@ var app = (function () {
     				check_outros();
     			}
     		},
-    		i: function intro(local) {
+    		i(local) {
     			if (current) return;
 
     			for (let i = 0; i < each_value.length; i += 1) {
@@ -1418,7 +1114,7 @@ var app = (function () {
 
     			current = true;
     		},
-    		o: function outro(local) {
+    		o(local) {
     			each_blocks = each_blocks.filter(Boolean);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
@@ -1427,56 +1123,55 @@ var app = (function () {
 
     			current = false;
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(ul);
+    		d(detaching) {
+    			if (detaching) detach(ul);
     			destroy_each(each_blocks, detaching);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_else_block.name,
-    		type: "else",
-    		source: "(58:4) {:else}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (56:4) {#if shoppingList.length === 0}
+    // (73:4) {#if shoppingList.length === 0}
     function create_if_block(ctx) {
     	let p;
+    	let p_intro;
+    	let p_outro;
+    	let current;
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			p = element("p");
     			p.textContent = "Your shopping list is empty!";
-    			add_location(p, file, 56, 6, 1743);
+    			attr(p, "class", "text-center p-4");
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, p, anchor);
+    		m(target, anchor) {
+    			insert(target, p, anchor);
+    			current = true;
     		},
     		p: noop,
-    		i: noop,
-    		o: noop,
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(p);
+    		i(local) {
+    			if (current) return;
+
+    			add_render_callback(() => {
+    				if (p_outro) p_outro.end(1);
+    				p_intro = create_in_transition(p, fade, { delay: 300 });
+    				p_intro.start();
+    			});
+
+    			current = true;
+    		},
+    		o(local) {
+    			if (p_intro) p_intro.invalidate();
+    			p_outro = create_out_transition(p, fade, { duration: 50 });
+    			current = false;
+    		},
+    		d(detaching) {
+    			if (detaching) detach(p);
+    			if (detaching && p_outro) p_outro.end();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block.name,
-    		type: "if",
-    		source: "(56:4) {#if shoppingList.length === 0}",
-    		ctx
-    	});
-
-    	return block;
     }
 
-    // (60:8) {#each shoppingList as item, index}
+    // (83:8) {#each shoppingList as item, index}
     function create_each_block(ctx) {
     	let form;
     	let listitem;
@@ -1488,116 +1183,108 @@ var app = (function () {
     	let dispose;
 
     	function listitem_value_binding(value) {
-    		/*listitem_value_binding*/ ctx[7](value, /*item*/ ctx[12]);
+    		/*listitem_value_binding*/ ctx[7](value, /*item*/ ctx[13]);
     	}
 
     	function listitem_checked_binding(value) {
-    		/*listitem_checked_binding*/ ctx[8](value, /*item*/ ctx[12]);
+    		/*listitem_checked_binding*/ ctx[8](value, /*item*/ ctx[13]);
     	}
 
     	function change_handler() {
-    		return /*change_handler*/ ctx[9](/*index*/ ctx[14]);
+    		return /*change_handler*/ ctx[9](/*index*/ ctx[15]);
     	}
 
     	function click_handler() {
-    		return /*click_handler*/ ctx[10](/*index*/ ctx[14]);
+    		return /*click_handler*/ ctx[10](/*index*/ ctx[15]);
     	}
 
     	let listitem_props = {
     		removeEmptyItem: /*removeEmptyItem*/ ctx[5],
-    		item: /*item*/ ctx[12]
+    		item: /*item*/ ctx[13]
     	};
 
-    	if (/*item*/ ctx[12].name !== void 0) {
-    		listitem_props.value = /*item*/ ctx[12].name;
+    	if (/*item*/ ctx[13].name !== void 0) {
+    		listitem_props.value = /*item*/ ctx[13].name;
     	}
 
-    	if (/*item*/ ctx[12].bought !== void 0) {
-    		listitem_props.checked = /*item*/ ctx[12].bought;
+    	if (/*item*/ ctx[13].bought !== void 0) {
+    		listitem_props.checked = /*item*/ ctx[13].bought;
     	}
 
-    	listitem = new ListItem({ props: listitem_props, $$inline: true });
+    	listitem = new ListItem({ props: listitem_props });
     	binding_callbacks.push(() => bind(listitem, 'value', listitem_value_binding));
     	binding_callbacks.push(() => bind(listitem, 'checked', listitem_checked_binding));
     	listitem.$on("change", change_handler);
     	listitem.$on("click", click_handler);
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			form = element("form");
     			create_component(listitem.$$.fragment);
     			t = space();
-    			add_location(form, file, 60, 10, 1869);
     		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, form, anchor);
+    		m(target, anchor) {
+    			insert(target, form, anchor);
     			mount_component(listitem, form, null);
-    			append_dev(form, t);
+    			append(form, t);
     			current = true;
 
     			if (!mounted) {
-    				dispose = listen_dev(form, "submit", prevent_default(/*handleSubmit*/ ctx[2]), false, true, false);
+    				dispose = listen(form, "submit", prevent_default(/*handleSubmit*/ ctx[2]));
     				mounted = true;
     			}
     		},
-    		p: function update(new_ctx, dirty) {
+    		p(new_ctx, dirty) {
     			ctx = new_ctx;
     			const listitem_changes = {};
-    			if (dirty & /*shoppingList*/ 1) listitem_changes.item = /*item*/ ctx[12];
+    			if (dirty & /*shoppingList*/ 1) listitem_changes.item = /*item*/ ctx[13];
 
     			if (!updating_value && dirty & /*shoppingList*/ 1) {
     				updating_value = true;
-    				listitem_changes.value = /*item*/ ctx[12].name;
+    				listitem_changes.value = /*item*/ ctx[13].name;
     				add_flush_callback(() => updating_value = false);
     			}
 
     			if (!updating_checked && dirty & /*shoppingList*/ 1) {
     				updating_checked = true;
-    				listitem_changes.checked = /*item*/ ctx[12].bought;
+    				listitem_changes.checked = /*item*/ ctx[13].bought;
     				add_flush_callback(() => updating_checked = false);
     			}
 
     			listitem.$set(listitem_changes);
     		},
-    		i: function intro(local) {
+    		i(local) {
     			if (current) return;
     			transition_in(listitem.$$.fragment, local);
     			current = true;
     		},
-    		o: function outro(local) {
+    		o(local) {
     			transition_out(listitem.$$.fragment, local);
     			current = false;
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(form);
+    		d(detaching) {
+    			if (detaching) detach(form);
     			destroy_component(listitem);
     			mounted = false;
     			dispose();
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_each_block.name,
-    		type: "each",
-    		source: "(60:8) {#each shoppingList as item, index}",
-    		ctx
-    	});
-
-    	return block;
     }
 
     function create_fragment(ctx) {
     	let main;
+    	let svg;
+    	let path;
+    	let t0;
     	let div;
     	let h1;
-    	let t1;
+    	let t2;
     	let current_block_type_index;
     	let if_block;
-    	let t2;
+    	let t3;
     	let button;
     	let span;
-    	let t4;
+    	let t5;
     	let plusicon;
     	let button_disabled_value;
     	let current;
@@ -1613,61 +1300,64 @@ var app = (function () {
 
     	current_block_type_index = select_block_type(ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-    	plusicon = new PlusIcon({ $$inline: true });
+    	plusicon = new PlusIcon({});
 
-    	const block = {
-    		c: function create() {
+    	return {
+    		c() {
     			main = element("main");
+    			svg = svg_element("svg");
+    			path = svg_element("path");
+    			t0 = space();
     			div = element("div");
     			h1 = element("h1");
     			h1.textContent = "Shopping List";
-    			t1 = space();
-    			if_block.c();
     			t2 = space();
+    			if_block.c();
+    			t3 = space();
     			button = element("button");
     			span = element("span");
     			span.textContent = "Add new item";
-    			t4 = space();
+    			t5 = space();
     			create_component(plusicon.$$.fragment);
-    			attr_dev(h1, "class", "svelte-tp9oz0");
-    			add_location(h1, file, 54, 4, 1678);
-    			attr_dev(span, "class", "text-button svelte-tp9oz0");
-    			add_location(span, file, 81, 7, 2457);
-    			attr_dev(button, "type", "button");
-    			attr_dev(button, "class", "add-button svelte-tp9oz0");
+    			attr(path, "fill", "#FF0066");
+    			attr(path, "d", "M43.8,-53.7C56.1,-41.8,65,-27.4,69.7,-10.8C74.3,5.7,74.7,24.5,66.2,37.2C57.7,49.9,40.3,56.4,25.6,55.1C10.9,53.8,-1,44.8,-15.2,40.3C-29.5,35.8,-46,35.9,-52,28.5C-58,21.2,-53.5,6.3,-47.9,-5.4C-42.2,-17.1,-35.4,-25.6,-27.3,-38.2C-19.1,-50.8,-9.5,-67.4,3.1,-71.1C15.7,-74.8,31.4,-65.5,43.8,-53.7Z");
+    			attr(path, "transform", "translate(100 100)");
+    			attr(svg, "class", "blob");
+    			attr(svg, "viewBox", "0 0 200 200");
+    			attr(svg, "xmlns", "http://www.w3.org/2000/svg");
+    			attr(h1, "class", "antialiased mt-0 mb-4 text-berry text-center uppercase text-3xl md:text-6xl");
+    			attr(button, "class", "add-button p-2.5 flex items-center self-center space-x-2 cursor-pointer text-berry fill-berry m-0 border-none bg-transparent hover:fill-berry-dark hover:text-berry-dark hover:bg-transparent");
+    			attr(button, "type", "button");
     			button.disabled = button_disabled_value = !!/*shoppingList*/ ctx[0].find(func);
-    			add_location(button, file, 73, 4, 2243);
-    			attr_dev(div, "class", "list-container svelte-tp9oz0");
-    			add_location(div, file, 53, 2, 1645);
-    			attr_dev(main, "class", "svelte-tp9oz0");
-    			add_location(main, file, 52, 0, 1636);
+    			attr(div, "class", "list bg-white md:max-w-fit border-none rounded-xl shadow-lg shadow-berry px-14 pt-14 pb-10 flex flex-col my-0 mx-auto");
+    			attr(main, "class", "h-screen relative");
     		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, main, anchor);
-    			append_dev(main, div);
-    			append_dev(div, h1);
-    			append_dev(div, t1);
+    		m(target, anchor) {
+    			insert(target, main, anchor);
+    			append(main, svg);
+    			append(svg, path);
+    			append(main, t0);
+    			append(main, div);
+    			append(div, h1);
+    			append(div, t2);
     			if_blocks[current_block_type_index].m(div, null);
-    			append_dev(div, t2);
-    			append_dev(div, button);
-    			append_dev(button, span);
-    			append_dev(button, t4);
+    			append(div, t3);
+    			append(div, button);
+    			append(button, span);
+    			append(button, t5);
     			mount_component(plusicon, button, null);
     			current = true;
 
     			if (!mounted) {
     				dispose = [
     					action_destroyer(clickOutside.call(null, button, /*clickOutside_function*/ ctx[11])),
-    					listen_dev(button, "click", /*addToList*/ ctx[1], false, false, false)
+    					listen(button, "click", /*addToList*/ ctx[1])
     				];
 
     				mounted = true;
     			}
     		},
-    		p: function update(ctx, [dirty]) {
+    		p(ctx, [dirty]) {
     			let previous_block_index = current_block_type_index;
     			current_block_type_index = select_block_type(ctx);
 
@@ -1691,55 +1381,43 @@ var app = (function () {
     				}
 
     				transition_in(if_block, 1);
-    				if_block.m(div, t2);
+    				if_block.m(div, t3);
     			}
 
     			if (!current || dirty & /*shoppingList*/ 1 && button_disabled_value !== (button_disabled_value = !!/*shoppingList*/ ctx[0].find(func))) {
-    				prop_dev(button, "disabled", button_disabled_value);
+    				button.disabled = button_disabled_value;
     			}
     		},
-    		i: function intro(local) {
+    		i(local) {
     			if (current) return;
     			transition_in(if_block);
     			transition_in(plusicon.$$.fragment, local);
     			current = true;
     		},
-    		o: function outro(local) {
+    		o(local) {
     			transition_out(if_block);
     			transition_out(plusicon.$$.fragment, local);
     			current = false;
     		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(main);
+    		d(detaching) {
+    			if (detaching) detach(main);
     			if_blocks[current_block_type_index].d();
     			destroy_component(plusicon);
     			mounted = false;
     			run_all(dispose);
     		}
     	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_fragment.name,
-    		type: "component",
-    		source: "",
-    		ctx
-    	});
-
-    	return block;
     }
 
     const func = item => !item.name;
 
     function instance($$self, $$props, $$invalidate) {
-    	let { $$slots: slots = {}, $$scope } = $$props;
-    	validate_slots('App', slots, []);
     	let { newItem = "" } = $$props;
 
     	let { shoppingList = [
-    		{ name: "Watermelon", bought: false },
     		{ name: "Chocolate", bought: false },
-    		{ name: "Quinoa", bought: false }
+    		{ name: "Quinoa", bought: false },
+    		{ name: "Watermelon", bought: false }
     	] } = $$props;
 
     	// Actions
@@ -1747,15 +1425,19 @@ var app = (function () {
     		$$invalidate(0, shoppingList = shoppingList.concat({ name: newItem, bought: false }));
     	}
 
-    	function handleSubmit(event) {
-    		const emptyItem = !!shoppingList.findIndex(item => !item.name);
+    	function sortItems() {
+    		const toBuyItems = shoppingList.filter(item => !item.bought).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    		const boughtItems = shoppingList.filter(item => item.bought);
+    		$$invalidate(0, shoppingList = [...toBuyItems, ...boughtItems]);
+    	}
 
-    		if (emptyItem) {
+    	function handleSubmit(event) {
+    		const emptyItem = shoppingList.findIndex(item => !item.name);
+
+    		if (emptyItem !== -1) {
     			event.preventDefault();
     		} else {
-    			const toBuyItems = shoppingList.filter(item => !item.bought).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-    			const boughtItems = shoppingList.filter(item => item.bought);
-    			$$invalidate(0, shoppingList = [...toBuyItems, ...boughtItems]);
+    			sortItems();
     			addToList();
     		}
     	}
@@ -1763,12 +1445,9 @@ var app = (function () {
     	function updateList(index) {
     		const newList = [...shoppingList];
     		const changedElement = newList.splice(index, 1)[0];
-
-    		changedElement.bought
-    		? newList.splice(newList.length, 0, changedElement)
-    		: newList.splice(0, 0, changedElement);
-
+    		newList.splice(0, 0, changedElement);
     		$$invalidate(0, shoppingList = newList);
+    		sortItems();
     	}
 
     	function removeItem(index) {
@@ -1778,18 +1457,13 @@ var app = (function () {
     	}
 
     	function removeEmptyItem() {
+    		const element = document.activeElement.tagName.toLowerCase();
     		const emptyItem = shoppingList.findIndex(item => !item.name);
 
-    		if (emptyItem !== -1) {
+    		if (emptyItem !== -1 && element !== "input") {
     			removeItem(emptyItem);
     		}
     	}
-
-    	const writable_props = ['newItem', 'shoppingList'];
-
-    	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<App> was created with unknown prop '${key}'`);
-    	});
 
     	function listitem_value_binding(value, item) {
     		if ($$self.$$.not_equal(item.name, value)) {
@@ -1817,28 +1491,6 @@ var app = (function () {
     		if ('shoppingList' in $$props) $$invalidate(0, shoppingList = $$props.shoppingList);
     	};
 
-    	$$self.$capture_state = () => ({
-    		ListItem,
-    		clickOutside,
-    		PlusIcon,
-    		newItem,
-    		shoppingList,
-    		addToList,
-    		handleSubmit,
-    		updateList,
-    		removeItem,
-    		removeEmptyItem
-    	});
-
-    	$$self.$inject_state = $$props => {
-    		if ('newItem' in $$props) $$invalidate(6, newItem = $$props.newItem);
-    		if ('shoppingList' in $$props) $$invalidate(0, shoppingList = $$props.shoppingList);
-    	};
-
-    	if ($$props && "$$inject" in $$props) {
-    		$$self.$inject_state($$props.$$inject);
-    	}
-
     	return [
     		shoppingList,
     		addToList,
@@ -1855,33 +1507,10 @@ var app = (function () {
     	];
     }
 
-    class App extends SvelteComponentDev {
+    class App extends SvelteComponent {
     	constructor(options) {
-    		super(options);
+    		super();
     		init(this, options, instance, create_fragment, safe_not_equal, { newItem: 6, shoppingList: 0 });
-
-    		dispatch_dev("SvelteRegisterComponent", {
-    			component: this,
-    			tagName: "App",
-    			options,
-    			id: create_fragment.name
-    		});
-    	}
-
-    	get newItem() {
-    		throw new Error("<App>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set newItem(value) {
-    		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get shoppingList() {
-    		throw new Error("<App>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set shoppingList(value) {
-    		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
 

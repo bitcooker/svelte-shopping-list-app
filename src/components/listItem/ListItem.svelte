@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fade, fly } from "svelte/transition";
+  import { fly, slide } from "svelte/transition";
   import { clickEscape } from "../../helpers/escapeClick/EscapeClick";
 
   // Assets
@@ -12,22 +12,27 @@
   export let checked: boolean;
   export let value: string;
   export let item: ShoppingItem;
-  export let removeEmptyItem;
+  export let removeEmptyItem: () => void;
 
   // Helpers
-  function focus(node) {
+  function focus(node: HTMLInputElement) {
     if (!node.id) node.focus();
   }
 </script>
 
-<li class="item" in:fly={{ y: 10, duration: 1000 }} out:fade>
-  <div>
-    <input bind:checked type="checkbox" on:change />
+<li
+  class="list-none flex justify-between items-center pb-4"
+  in:fly={{ y: 10, duration: 1000 }}
+  out:slide={{ duration: 300 }}
+>
+  <div class="flex items-center">
+    <input bind:checked type="checkbox" on:change class="cursor-pointer" />
     <input
+      class="p-1.5 cursor-pointer border-none"
       id={item.name}
       bind:value
       type="text"
-      class:checked={item.bought}
+      class:line-through={item.bought}
       class:new-item={!item.name}
       use:focus
       use:clickEscape={() => {
@@ -35,41 +40,16 @@
       }}
     />
   </div>
-  <button type="button" on:click><DeleteIcon /></button>
+  <button
+    class="border-none cursor:pointer bg-transparent fill-grey hover:fill-black"
+    type="button"
+    on:click><DeleteIcon /></button
+  >
 </li>
 
 <style>
-  .item {
-    list-style: none;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  input {
-    margin: 0;
-    cursor: pointer;
-    border: none;
-  }
-
   .new-item {
     border: inset;
-  }
-  .checked {
-    text-decoration: line-through;
-  }
-
-  button {
-    background-color: transparent;
-    border: none;
-    fill: grey;
-    cursor: pointer;
-  }
-
-  button:hover,
-  :focus {
-    fill: black;
   }
 
   button:active {

@@ -40,11 +40,15 @@ export default {
 	},
 	plugins: [
 		svelte({
-			preprocess: sveltePreprocess({ sourceMap: !production }),
-			compilerOptions: {
-				// enable run-time checks when not in production
-				dev: !production
-			}
+			preprocess: sveltePreprocess({
+				sourceMap: !production,
+				postcss: {
+				  plugins: [
+				   require("tailwindcss"), 
+				   require("autoprefixer"),
+				  ],
+				},
+			  }),
 		}),
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
