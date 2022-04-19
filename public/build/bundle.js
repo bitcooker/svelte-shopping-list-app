@@ -787,7 +787,7 @@ var app = (function () {
     			button = element("button");
     			create_component(deleteicon.$$.fragment);
     			attr(input0, "type", "checkbox");
-    			attr(input0, "class", "cursor-pointer");
+    			attr(input0, "class", "cursor-pointer mr-2");
     			attr(input1, "class", "p-1.5 cursor-pointer border-none svelte-8iqnr1");
     			attr(input1, "id", input1_id_value = /*item*/ ctx[2].name);
     			attr(input1, "type", "text");
@@ -1043,7 +1043,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (81:4) {:else}
+    // (85:4) {:else}
     function create_else_block(ctx) {
     	let ul;
     	let current;
@@ -1130,7 +1130,7 @@ var app = (function () {
     	};
     }
 
-    // (73:4) {#if shoppingList.length === 0}
+    // (77:4) {#if shoppingList.length === 0}
     function create_if_block(ctx) {
     	let p;
     	let p_intro;
@@ -1171,7 +1171,7 @@ var app = (function () {
     	};
     }
 
-    // (83:8) {#each shoppingList as item, index}
+    // (87:8) {#each shoppingList as item, index}
     function create_each_block(ctx) {
     	let form;
     	let listitem;
@@ -1322,14 +1322,14 @@ var app = (function () {
     			attr(path, "fill", "#FF0066");
     			attr(path, "d", "M43.8,-53.7C56.1,-41.8,65,-27.4,69.7,-10.8C74.3,5.7,74.7,24.5,66.2,37.2C57.7,49.9,40.3,56.4,25.6,55.1C10.9,53.8,-1,44.8,-15.2,40.3C-29.5,35.8,-46,35.9,-52,28.5C-58,21.2,-53.5,6.3,-47.9,-5.4C-42.2,-17.1,-35.4,-25.6,-27.3,-38.2C-19.1,-50.8,-9.5,-67.4,3.1,-71.1C15.7,-74.8,31.4,-65.5,43.8,-53.7Z");
     			attr(path, "transform", "translate(100 100)");
-    			attr(svg, "class", "blob");
-    			attr(svg, "viewBox", "0 0 200 200");
+    			attr(svg, "class", "blob relative h-screen py-2");
     			attr(svg, "xmlns", "http://www.w3.org/2000/svg");
+    			attr(svg, "viewBox", "45.15 28.08 127.78 127.19");
     			attr(h1, "class", "antialiased mt-0 mb-4 text-berry text-center uppercase text-3xl md:text-6xl");
     			attr(button, "class", "add-button p-2.5 flex items-center self-center space-x-2 cursor-pointer text-berry fill-berry m-0 border-none bg-transparent hover:fill-berry-dark hover:text-berry-dark hover:bg-transparent");
     			attr(button, "type", "button");
     			button.disabled = button_disabled_value = !!/*shoppingList*/ ctx[0].find(func);
-    			attr(div, "class", "list bg-white md:max-w-fit border-none rounded-xl shadow-lg shadow-berry px-14 pt-14 pb-10 flex flex-col my-0 mx-auto");
+    			attr(div, "class", "list absolute bg-white md:max-w-fit border-none md:rounded-xl shadow-lg shadow-berry px-14 pt-14 pb-10 flex flex-col my-0 mx-auto");
     			attr(main, "class", "h-screen relative");
     		},
     		m(target, anchor) {

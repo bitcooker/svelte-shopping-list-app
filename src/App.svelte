@@ -66,7 +66,11 @@
 </script>
 
 <main class="h-screen relative">
-  <svg class="blob" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    class="blob relative h-screen py-2"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="45.15 28.08 127.78 127.19"
+  >
     <path
       fill="#FF0066"
       d="M43.8,-53.7C56.1,-41.8,65,-27.4,69.7,-10.8C74.3,5.7,74.7,24.5,66.2,37.2C57.7,49.9,40.3,56.4,25.6,55.1C10.9,53.8,-1,44.8,-15.2,40.3C-29.5,35.8,-46,35.9,-52,28.5C-58,21.2,-53.5,6.3,-47.9,-5.4C-42.2,-17.1,-35.4,-25.6,-27.3,-38.2C-19.1,-50.8,-9.5,-67.4,3.1,-71.1C15.7,-74.8,31.4,-65.5,43.8,-53.7Z"
@@ -74,7 +78,7 @@
     />
   </svg>
   <div
-    class="list bg-white md:max-w-fit border-none rounded-xl shadow-lg shadow-berry px-14 pt-14 pb-10 flex flex-col my-0 mx-auto"
+    class="list absolute bg-white md:max-w-fit border-none md:rounded-xl shadow-lg shadow-berry px-14 pt-14 pb-10 flex flex-col my-0 mx-auto"
   >
     <h1
       class="antialiased mt-0 mb-4 text-berry text-center uppercase text-3xl md:text-6xl"
@@ -124,25 +128,22 @@
   @tailwind utilities;
 
   .blob {
-    position: relative;
-    top: 29%;
-    left: 22%;
-    transform: translate(-50%, -50%);
-  }
-  .list {
-    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    padding: 10px 0;
+  }
+  .list {
+    top: 34%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
   }
 
-  @media (min-width: 640px) {
-    .blob {
-      top: 50%;
-      left: 50%;
-    }
+  @media (min-width: 540px) {
     .list {
-      transform: translate(-50%, -50%);
+      top: 50%;
+      widh: fit-content;
     }
   }
 

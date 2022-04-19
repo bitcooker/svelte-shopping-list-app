@@ -26,7 +26,7 @@
   out:slide={{ duration: 300 }}
 >
   <div class="flex items-center">
-    <input bind:checked type="checkbox" on:change class="cursor-pointer" />
+    <input bind:checked type="checkbox" on:change class="cursor-pointer mr-2" />
     <input
       class="p-1.5 cursor-pointer border-none"
       id={item.name}
