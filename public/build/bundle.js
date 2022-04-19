@@ -1329,8 +1329,8 @@ var app = (function () {
     			attr(button, "class", "add-button p-2.5 flex items-center self-center space-x-2 cursor-pointer text-berry fill-berry m-0 border-none bg-transparent hover:fill-berry-dark hover:text-berry-dark hover:bg-transparent");
     			attr(button, "type", "button");
     			button.disabled = button_disabled_value = !!/*shoppingList*/ ctx[0].find(func);
-    			attr(div, "class", "list absolute bg-white md:max-w-fit border-none md:rounded-xl shadow-lg shadow-berry px-14 pt-14 pb-10 flex flex-col my-0 mx-auto");
-    			attr(main, "class", "h-screen relative");
+    			attr(div, "class", "rounded-xl list sm:absolute bg-white md:max-w-fit border-none shadow-lg shadow-berry px-14 pt-14 pb-10 flex flex-col md:my-0 md:mx-auto");
+    			attr(main, "class", "h-screen relative bg-berry sm:bg-white px-4 pt-4 sm:p-0");
     		},
     		m(target, anchor) {
     			insert(target, main, anchor);
