@@ -65,7 +65,7 @@
   }
 </script>
 
-<main class="h-screen relative bg-berry sm:bg-white px-4 pt-4 sm:p-0">
+<main class="h-screen relative bg-berry sm:bg-black px-4 pt-4 sm:p-0">
   <svg
     class="blob relative h-screen py-2"
     xmlns="http://www.w3.org/2000/svg"
